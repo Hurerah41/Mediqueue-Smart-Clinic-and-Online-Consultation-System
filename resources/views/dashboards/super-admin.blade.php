@@ -5,14 +5,14 @@
         $activeOwnerSection = $activeOwnerSection ?? 'overview';
     @endphp
 
-    <div class="grid lg:grid-cols-[280px_minmax(0,1fr)] gap-6 items-start">
+    <div class="dashboard-page grid lg:grid-cols-[280px_minmax(0,1fr)] gap-6 items-start">
         @include('dashboards.partials.sidebar')
 
         <div>
             <div class="flex flex-wrap items-start justify-between gap-6 mb-10" id="owner-overview">
                 <div>
-                    <p class="text-sm uppercase tracking-widest text-primary font-bold">Owner Dashboard</p>
-                    <h1 class="text-5xl font-extrabold tracking-tight text-dark mt-2">Platform Super Admin</h1>
+                    <p class="text-sm text-slate-500 font-bold">Manage the full MediQueue platform.</p>
+                    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-dark mt-2">Platform Super Admin</h1>
                     <p class="text-slate-500 mt-2">Manage all clinics, clinic admins, doctors, and patients across MediQueue.</p>
                 </div>
             </div>
@@ -20,7 +20,7 @@
     @if ($activeOwnerSection === 'overview')
     <div class="grid md:grid-cols-5 gap-4 mb-8">
         @foreach ($stats as $label => $value)
-            <div class="glass-panel rounded-3xl p-6 shadow-glass">
+            <div class="dashboard-card rounded-3xl p-6">
                 <div class="text-xs uppercase tracking-widest text-slate-500 font-bold">{{ str_replace('_', ' ', $label) }}</div>
                 <div class="text-4xl font-black text-gradient mt-3" data-owner-live-stat="{{ $label }}">{{ $value }}</div>
             </div>
@@ -30,7 +30,7 @@
 
     @if ($activeOwnerSection === 'clinics')
     <div class="grid xl:grid-cols-3 gap-6 mb-8">
-        <section id="owner-clinics" class="xl:col-span-2 bg-white rounded-[2rem] border border-slate-100 p-8 shadow-soft">
+        <section id="owner-clinics" class="xl:col-span-2 dashboard-card rounded-[2rem] p-8">
             <h2 class="text-2xl font-extrabold mb-6 text-dark">All Clinics</h2>
             <div class="space-y-4" id="owner-clinic-list">
                 @foreach ($clinics as $clinic)
@@ -52,16 +52,24 @@
             </div>
         </section>
 
-        <section class="glass-panel rounded-[2rem] p-8 shadow-glass">
+        <section class="dashboard-card rounded-[2rem] p-8">
             <h2 class="text-xl font-extrabold mb-5 text-dark">Create Clinic + Admin</h2>
             <form method="POST" action="{{ route('owner.clinics.store') }}" class="space-y-4">
                 @csrf
-                <select name="area_id" class="form-control" required>
-                    <option value="">Select area</option>
-                    @foreach ($areas as $area)
-                        <option value="{{ $area->id }}">{{ $area->name }}</option>
-                    @endforeach
-                </select>
+                <div class="rounded-[1.5rem] border border-slate-100 bg-slate-50/70 p-4 space-y-3">
+                    <label class="block text-xs font-black uppercase tracking-[0.18em] text-slate-400">Area</label>
+                    <select name="area_id" class="form-control">
+                        <option value="">Select existing area</option>
+                        @foreach ($areas as $area)
+                            <option value="{{ $area->id }}" @selected(old('area_id') == $area->id)>{{ $area->name }}{{ $area->city ? ' - '.$area->city : '' }}</option>
+                        @endforeach
+                    </select>
+                    <div class="grid sm:grid-cols-2 gap-3">
+                        <input name="new_area_name" value="{{ old('new_area_name') }}" class="form-control" placeholder="Or add new area name">
+                        <input name="new_area_city" value="{{ old('new_area_city', 'Karachi') }}" class="form-control" placeholder="City">
+                    </div>
+                    <p class="text-xs text-slate-500">Choose an existing area or type a new one. New areas are saved automatically with the clinic.</p>
+                </div>
                 <input name="clinic_name" class="form-control" placeholder="Clinic name" required>
                 <input name="clinic_phone" class="form-control" placeholder="Clinic phone">
                 <input name="address" class="form-control" placeholder="Clinic address" required>
@@ -80,7 +88,7 @@
     @endif
 
     @if ($activeOwnerSection === 'applications')
-    <section id="owner-applications" class="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-soft mb-8">
+    <section id="owner-applications" class="dashboard-card rounded-[2rem] p-8 mb-8">
         <h2 class="text-2xl font-extrabold mb-6 text-dark">Pending Clinic Applications</h2>
         <div class="space-y-4" id="owner-application-list">
             @forelse ($clinicApplications as $application)
@@ -113,7 +121,7 @@
     @endif
 
     @if ($activeOwnerSection === 'users')
-    <section id="owner-users" class="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-soft">
+    <section id="owner-users" class="dashboard-card rounded-[2rem] p-8">
         <h2 class="text-2xl font-extrabold mb-6 text-dark">All Users</h2>
         <div class="space-y-4" id="owner-user-list">
             @foreach ($users as $member)
@@ -148,7 +156,7 @@
     @endif
 
     @if ($activeOwnerSection === 'settings')
-        <section class="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-soft">
+        <section class="dashboard-card rounded-[2rem] p-8">
             <h2 class="text-2xl font-extrabold mb-2 text-dark">Platform Settings</h2>
             <p class="text-slate-600 max-w-2xl mb-8">Use this page to control the platform identity, support email, clinic verification policy, commission percentage, and how early queue alerts should trigger.</p>
 

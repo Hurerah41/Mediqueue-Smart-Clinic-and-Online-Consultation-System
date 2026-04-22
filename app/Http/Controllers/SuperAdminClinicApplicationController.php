@@ -37,7 +37,7 @@ class SuperAdminClinicApplicationController extends Controller
                 'clinic_id' => $clinic->id,
                 'name' => $clinicApplication->admin_name,
                 'phone' => $clinicApplication->admin_phone,
-                'email' => $clinicApplication->admin_email,
+                'email' => strtolower((string) $clinicApplication->admin_email),
                 'role' => User::ROLE_ADMIN,
                 'password' => 'Admin@12345',
                 'is_verified' => true,

@@ -12,84 +12,81 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-light text-dark font-sans antialiased overflow-x-hidden selection:bg-primary/20 selection:text-primary flex flex-col">
-    <div class="fixed inset-0 w-full h-full z-[-1] overflow-hidden pointer-events-none">
-        <div class="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob"></div>
-        <div class="absolute top-0 right-1/4 w-96 h-96 bg-secondary/20 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob"></div>
-        <div class="absolute -bottom-32 left-1/3 w-96 h-96 bg-accent/10 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob"></div>
+<body class="min-h-screen bg-grid-pattern text-slate-500 font-sans antialiased overflow-x-hidden selection:bg-primary/20 selection:text-primary relative flex flex-col">
+    <div id="page-loader" class="page-loader" role="status" aria-live="polite" aria-label="Loading MediQueue">
+        <div class="loader-card">
+            <div class="loader-logo-wrap">
+                <span class="loader-ring loader-ring-blue"></span>
+                <span class="loader-ring loader-ring-purple"></span>
+                <div class="loader-logo">
+                    <i class="ph-bold ph-heartbeat"></i>
+                </div>
+            </div>
+            <p class="loader-brand">MediQueue</p>
+        </div>
     </div>
 
-    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-white/40 transition-all duration-300" id="navbar">
-        <div class="w-full px-4 sm:px-6 lg:px-10 h-20 flex items-center justify-between">
+    <div class="hero-gradient"></div>
+
+    <nav class="fixed top-0 w-full z-50 transition-all duration-300 pt-3" id="navbar">
+        <div class="nav-shell w-[96%] max-w-[1700px] mx-auto px-3 sm:px-4 lg:px-5 h-16 sm:h-[4.5rem] rounded-[1.6rem] flex items-center justify-between transition-all duration-300">
             <a href="{{ route('home') }}" class="flex items-center gap-2 group">
-                <div class="w-10 h-10 rounded-xl bg-gradient-premium flex items-center justify-center text-white shadow-glow group-hover:scale-105 transition-transform duration-300">
-                    <i class="ph-bold ph-heartbeat text-2xl"></i>
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-glow-primary group-hover:scale-105 transition-transform duration-300">
+                    <i class="ph-bold ph-heartbeat text-lg"></i>
                 </div>
-                <span class="text-xl font-bold tracking-tight text-dark">Medi<span class="text-primary">Queue</span></span>
+                <span class="text-xl font-extrabold tracking-tight text-dark">MediQueue</span>
             </a>
 
-            <div class="hidden md:flex items-center gap-8 font-medium text-sm text-slate-600">
-                <a href="{{ route('home') }}" class="hover:text-primary transition-colors">Home</a>
-                <a href="{{ route('clinics.index') }}" class="hover:text-primary transition-colors">Clinics</a>
-                <a href="{{ route('clinic-applications.create') }}" class="hover:text-primary transition-colors">Register Clinic</a>
-                @auth
-                    <a href="{{ route('dashboard') }}" class="hover:text-primary transition-colors">Dashboard</a>
-                @endauth
+            <div class="hidden md:flex items-center gap-8 font-semibold text-sm text-slate-500">
+                <a href="{{ route('home') }}" class="hover:text-dark transition-colors relative group">Home<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span></a>
+                <a href="{{ route('clinics.index') }}" class="hover:text-dark transition-colors relative group">Clinics<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span></a>
+                <a href="{{ route('home') }}#features" class="hover:text-dark transition-colors relative group">Features<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span></a>
+                <a href="{{ route('home') }}#how-it-works" class="hover:text-dark transition-colors relative group">How it works<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span></a>
             </div>
 
             <div class="hidden md:flex items-center gap-4">
                 @auth
-                    <div class="relative">
-                        <button type="button" id="notification-bell" class="relative w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xl text-dark hover:text-primary">
-                            <i class="ph-fill ph-bell"></i>
-                            <span id="notification-count" class="hidden absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center">0</span>
-                        </button>
-                        <div id="notification-panel" class="hidden absolute right-0 mt-3 w-96 max-w-[90vw] bg-white rounded-[1.5rem] border border-slate-100 shadow-soft overflow-hidden">
-                            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                                <span class="font-extrabold text-dark">Notifications</span>
-                                <span class="text-xs text-slate-400">Live</span>
-                            </div>
-                            <div id="notification-list" class="max-h-96 overflow-y-auto hide-scrollbar p-3">
-                                <p class="text-sm text-slate-500 p-3">No notifications yet.</p>
-                            </div>
-                        </div>
-                    </div>
+                    <a href="{{ route('dashboard') }}" class="text-sm font-semibold text-slate-500 hover:text-dark transition-colors">Dashboard</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="text-sm font-medium text-slate-600 hover:text-dark transition-colors">Log out</button>
+                        <button type="submit" class="text-sm font-semibold text-slate-500 hover:text-dark transition-colors">Log out</button>
                     </form>
-                    <a href="{{ route('dashboard') }}" class="bg-dark text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-slate-800 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">Dashboard</a>
                 @else
-                    <a href="{{ route('login') }}" class="text-sm font-medium text-slate-600 hover:text-dark transition-colors">Log in</a>
-                    <a href="{{ route('register') }}" class="bg-dark text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-slate-800 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">Book Token</a>
+                    <a href="{{ route('login') }}" class="text-sm font-semibold text-slate-500 hover:text-dark transition-colors">Sign In</a>
+                    <a href="{{ route('register') }}" class="relative group bg-dark text-white px-5 py-2.5 rounded-full text-sm font-bold overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-dark/20">
+                        <span class="relative z-10">Get Started</span>
+                        <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-primary via-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </a>
                 @endauth
             </div>
 
-            <button class="md:hidden w-11 h-11 rounded-xl bg-white/80 border border-slate-200 flex items-center justify-center text-2xl text-dark" id="mobile-menu-btn" type="button" aria-label="Toggle navigation">
+            <button class="md:hidden text-2xl text-dark p-2" id="mobile-menu-btn" type="button" aria-label="Toggle navigation">
                 <i class="ph ph-list"></i>
             </button>
         </div>
-
-        <div class="md:hidden hidden border-t border-slate-200/70 bg-white/90 backdrop-blur-xl px-6 py-4" id="mobile-menu">
-            <div class="flex flex-col gap-4 text-sm font-semibold text-slate-700">
-                <a href="{{ route('home') }}" class="hover:text-primary">Home</a>
-                <a href="{{ route('clinics.index') }}" class="hover:text-primary">Clinics</a>
-                <a href="{{ route('clinic-applications.create') }}" class="hover:text-primary">Register Clinic</a>
-                @auth
-                    <a href="{{ route('dashboard') }}" class="hover:text-primary">Dashboard</a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="text-left hover:text-rose-600">Log out</button>
-                    </form>
-                @else
-                    <a href="{{ route('login') }}" class="hover:text-primary">Log in</a>
-                    <a href="{{ route('register') }}" class="bg-gradient-premium text-white px-5 py-3 rounded-2xl text-center shadow-glow">Book Token</a>
-                @endauth
-            </div>
-        </div>
     </nav>
 
-    <main class="w-full px-4 sm:px-6 lg:px-10 pt-28 pb-12 flex-1">
+    <div class="fixed inset-0 bg-white/95 backdrop-blur-xl z-40 transform translate-x-full transition-transform duration-300 flex flex-col pt-24 px-6 border-l border-slate-100" id="mobile-menu">
+        <div class="flex flex-col gap-6 text-xl font-bold text-dark">
+            <a href="{{ route('home') }}" class="mobile-link hover:text-primary">Home</a>
+            <a href="{{ route('clinics.index') }}" class="mobile-link hover:text-primary">Clinics</a>
+            <a href="{{ route('home') }}#features" class="mobile-link hover:text-primary">Features</a>
+            <a href="{{ route('home') }}#how-it-works" class="mobile-link hover:text-primary">How it works</a>
+            <hr class="border-slate-100 my-2">
+            @auth
+                <a href="{{ route('dashboard') }}" class="mobile-link text-slate-500">Dashboard</a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="text-left text-slate-500">Log out</button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="mobile-link text-slate-500">Sign In</a>
+                <a href="{{ route('register') }}" class="bg-dark text-white text-center py-4 rounded-full shadow-md hover:bg-slate-800">Get Started</a>
+            @endauth
+        </div>
+    </div>
+
+    <main class="w-[96%] max-w-[1700px] mx-auto px-2 sm:px-3 lg:px-4 pt-28 pb-12 flex-1">
         @if (session('success'))
             <div class="mb-6 rounded-3xl border border-emerald-200 bg-emerald-50/80 px-5 py-4 text-emerald-700 shadow-soft">
                 {{ session('success') }}
@@ -105,20 +102,109 @@
         @yield('content')
     </main>
 
-    <footer class="mt-auto bg-white/70 border-t border-slate-200/70 py-8">
-        <div class="w-full px-4 sm:px-6 lg:px-10 flex flex-col md:flex-row justify-between gap-3 text-sm text-slate-500">
-            <p>&copy; {{ date('Y') }} MediQueue. Smart Clinic SaaS MVP.</p>
-            <p>Built with Laravel, MySQL, Tailwind CSS, and JavaScript.</p>
+    <footer class="footer-shell pt-20 pb-8 mt-auto">
+        <div class="w-[96%] max-w-[1700px] mx-auto px-2 sm:px-3 lg:px-4 grid grid-cols-2 md:grid-cols-5 gap-10 mb-16">
+            <div class="col-span-2">
+                <a href="{{ route('home') }}" class="flex items-center gap-2 mb-6">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-sm">
+                        <i class="ph-bold ph-heartbeat text-base"></i>
+                    </div>
+                    <span class="text-xl font-extrabold tracking-tight text-dark">MediQueue</span>
+                </a>
+                <p class="text-sm text-slate-500 font-medium leading-relaxed max-w-xs mb-8">
+                    The ultra-fast, modern healthcare platform designed to eliminate waiting rooms and optimize clinic efficiency.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-bold text-dark mb-5 text-sm uppercase tracking-wider">Product</h4>
+                <ul class="space-y-4 text-sm font-medium text-slate-500">
+                    <li><a href="{{ route('clinics.index') }}" class="hover:text-primary transition-colors">Clinics</a></li>
+                    <li><a href="{{ route('home') }}#features" class="hover:text-primary transition-colors">Features</a></li>
+                    <li><a href="{{ route('home') }}#clinics" class="hover:text-primary transition-colors">About us</a></li>
+                    <li><a href="{{ route('register') }}" class="hover:text-primary transition-colors">Get Started</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-dark mb-5 text-sm uppercase tracking-wider">Company</h4>
+                <ul class="space-y-4 text-sm font-medium text-slate-500">
+                    <li><a href="#" class="hover:text-primary transition-colors">About Us</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">Blog</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">Contact</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">Support</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-dark mb-5 text-sm uppercase tracking-wider">Legal</h4>
+                <ul class="space-y-4 text-sm font-medium text-slate-500">
+                    <li><a href="#" class="hover:text-primary transition-colors">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">Terms of Service</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">HIPAA Compliance</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="w-[96%] max-w-[1700px] mx-auto px-2 sm:px-3 lg:px-4 pt-8 border-t border-slate-200/60 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-[11px] font-semibold text-slate-400">&copy; 2026 MediQueue Inc. All rights reserved.</p>
+            <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">
+                <span class="w-2 h-2 rounded-full bg-green-500"></span> All systems operational
+            </div>
         </div>
     </footer>
 
     <div id="toast-stack" class="fixed bottom-6 right-6 z-[9999] space-y-3 w-[calc(100vw-3rem)] max-w-sm"></div>
 
     <script>
+        const navbar = document.getElementById('navbar');
         const mobileMenuButton = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         const toastStack = document.getElementById('toast-stack');
         const csrfTokenGlobal = document.querySelector('meta[name="csrf-token"]').content;
+        const pageLoader = document.getElementById('page-loader');
+
+        function hidePageLoader() {
+            pageLoader?.classList.add('is-hidden');
+        }
+
+        function showPageLoader() {
+            pageLoader?.classList.remove('is-hidden');
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(hidePageLoader, 650);
+        });
+
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                hidePageLoader();
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            const link = event.target.closest('a[href]');
+
+            if (!link) return;
+            if (link.target && link.target !== '_self') return;
+            if (link.hasAttribute('download')) return;
+            if (link.dataset.noLoader === 'true') return;
+
+            const href = link.getAttribute('href') || '';
+            if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+
+            const destination = new URL(href, window.location.href);
+            if (destination.origin !== window.location.origin) return;
+            if (destination.pathname === window.location.pathname && destination.hash) return;
+
+            showPageLoader();
+        });
+
+        document.addEventListener('submit', (event) => {
+            const form = event.target;
+
+            if (!(form instanceof HTMLFormElement)) return;
+            if (form.dataset.noLoader === 'true') return;
+
+            showPageLoader();
+        });
 
         function escapeGlobalHtml(value) {
             return String(value ?? '')
@@ -152,11 +238,36 @@
 
         if (mobileMenuButton && mobileMenu) {
             mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-                mobileMenuButton.innerHTML = mobileMenu.classList.contains('hidden')
-                    ? '<i class="ph ph-list"></i>'
-                    : '<i class="ph ph-x"></i>';
+                const isClosed = mobileMenu.classList.contains('translate-x-full');
+
+                if (isClosed) {
+                    mobileMenu.classList.remove('translate-x-full');
+                    mobileMenuButton.innerHTML = '<i class="ph ph-x"></i>';
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    mobileMenu.classList.add('translate-x-full');
+                    mobileMenuButton.innerHTML = '<i class="ph ph-list"></i>';
+                    document.body.style.overflow = 'auto';
+                }
             });
+        }
+
+        if (navbar) {
+            const navbarShell = navbar.firstElementChild;
+            const syncNavbarState = () => {
+                if (!navbarShell) return;
+
+                if (window.scrollY > 10) {
+                    navbarShell.classList.add('shadow-lg');
+                    navbarShell.style.background = 'rgba(255,255,255,0.98)';
+                } else {
+                    navbarShell.classList.remove('shadow-lg');
+                    navbarShell.style.background = '';
+                }
+            };
+
+            syncNavbarState();
+            window.addEventListener('scroll', syncNavbarState, { passive: true });
         }
 
         @if (session('success'))

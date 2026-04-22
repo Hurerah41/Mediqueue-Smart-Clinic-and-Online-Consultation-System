@@ -13,11 +13,19 @@ class ClinicBrowseController extends Controller
 {
     public function index(Request $request): View
     {
-        $areaId = $request->integer('area_id');
-        $specializationId = $request->integer('specialization_id');
-        $searchTerm = trim((string) $request->query('search', ''));
+        $validated = $request->validate([
+            'area_id' => ['nullable', 'integer', 'exists:areas,id'],
+            'specialization_id' => ['nullable', 'integer', 'exists:specializations,id'],
+            'search' => ['nullable', 'string', 'max:120'],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
 
-        return view('clinics.index', [
+        $areaId = isset($validated['area_id']) ? (int) $validated['area_id'] : null;
+        $specializationId = isset($validated['specialization_id']) ? (int) $validated['specialization_id'] : null;
+        $searchTerm = trim((string) ($validated['search'] ?? ''));
+        $view = config('public_ui.v2') ? 'public.clinics.index' : 'clinics.index';
+
+        return view($view, [
             'areas' => Area::orderBy('name')->get(),
             'selectedAreaId' => $areaId,
             'specializations' => Specialization::orderBy('name')->get(),
@@ -30,6 +38,7 @@ class ClinicBrowseController extends Controller
                     'doctors.specialization',
                     'doctors.reviews' => fn ($query) => $query->where('review_type', Review::TYPE_DOCTOR),
                 ])
+                ->withCount('doctors')
                 ->when($areaId, fn ($query) => $query->where('area_id', $areaId))
                 ->when($searchTerm !== '', function ($query) use ($searchTerm): void {
                     $query->where(function ($searchQuery) use ($searchTerm): void {
@@ -44,7 +53,8 @@ class ClinicBrowseController extends Controller
                 )
                 ->where('is_active', true)
                 ->orderBy('name')
-                ->get(),
+                ->paginate(9)
+                ->withQueryString(),
         ]);
     }
 

@@ -5,14 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Area;
 use App\Models\Clinic;
 use App\Models\Review;
+use App\Models\Specialization;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
     public function __invoke(): View
     {
-        return view('welcome', [
+        $view = config('public_ui.v2') ? 'public.welcome' : 'welcome';
+
+        return view($view, [
             'areas' => Area::withCount('clinics')->orderBy('name')->get(),
+            'specializations' => Specialization::orderBy('name')->get(),
             'clinics' => Clinic::query()
                 ->with([
                     'area',

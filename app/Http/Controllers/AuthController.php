@@ -21,9 +21,14 @@ class AuthController extends Controller
 
     public function register(Request $request): RedirectResponse
     {
+        $request->merge([
+            'email' => strtolower(trim((string) $request->input('email'))),
+            'phone' => $this->normalizePhone($request->input('phone')),
+        ]);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['nullable', 'string', 'max:30', 'regex:/^[0-9+\\-\\s()]+$/'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
@@ -62,6 +67,10 @@ class AuthController extends Controller
 
     public function verifyOtp(Request $request): RedirectResponse
     {
+        $request->merge([
+            'email' => strtolower(trim((string) $request->input('email'))),
+        ]);
+
         $validated = $request->validate([
             'email' => ['required', 'email'],
             'otp_code' => ['required', 'digits:6'],
@@ -89,7 +98,7 @@ class AuthController extends Controller
         ]);
 
         $request->session()->forget('pending_otp_email');
-        Auth::login($user);
+        Auth::login($user, true);
         $request->session()->regenerate();
 
         return redirect()->route('dashboard')->with('success', 'Account verified successfully.');
@@ -97,6 +106,10 @@ class AuthController extends Controller
 
     public function resendOtp(Request $request): RedirectResponse
     {
+        $request->merge([
+            'email' => strtolower(trim((string) $request->input('email'))),
+        ]);
+
         $validated = $request->validate([
             'email' => ['required', 'email'],
         ]);
@@ -138,6 +151,10 @@ class AuthController extends Controller
 
     public function sendPasswordResetCode(Request $request): RedirectResponse
     {
+        $request->merge([
+            'email' => strtolower(trim((string) $request->input('email'))),
+        ]);
+
         $validated = $request->validate([
             'email' => ['required', 'email'],
         ]);
@@ -177,6 +194,10 @@ class AuthController extends Controller
 
     public function resetPassword(Request $request): RedirectResponse
     {
+        $request->merge([
+            'email' => strtolower(trim((string) $request->input('email'))),
+        ]);
+
         $validated = $request->validate([
             'email' => ['required', 'email'],
             'reset_code' => ['required', 'digits:6'],
@@ -215,12 +236,16 @@ class AuthController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
+        $request->merge([
+            'email' => strtolower(trim((string) $request->input('email'))),
+        ]);
+
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, true)) {
             return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
         }
 
@@ -265,5 +290,12 @@ class AuthController extends Controller
 
             return false;
         }
+    }
+
+    private function normalizePhone(mixed $value): ?string
+    {
+        $phone = trim((string) $value);
+
+        return $phone === '' ? null : $phone;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Area;
 use App\Models\Clinic;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -13,8 +14,15 @@ class SuperAdminClinicController extends Controller
 {
     public function store(Request $request): RedirectResponse
     {
+        $request->merge([
+            'new_area_name' => trim((string) $request->input('new_area_name')),
+            'new_area_city' => trim((string) $request->input('new_area_city', 'Karachi')),
+        ]);
+
         $validated = $request->validate([
-            'area_id' => ['required', 'exists:areas,id'],
+            'area_id' => ['nullable', 'required_without:new_area_name', 'exists:areas,id'],
+            'new_area_name' => ['nullable', 'required_without:area_id', 'string', 'max:120'],
+            'new_area_city' => ['nullable', 'string', 'max:120'],
             'clinic_name' => ['required', 'string', 'max:255'],
             'clinic_phone' => ['nullable', 'string', 'max:30'],
             'address' => ['required', 'string', 'max:500'],
@@ -26,8 +34,19 @@ class SuperAdminClinicController extends Controller
         ]);
 
         DB::transaction(function () use ($validated): void {
+            $areaId = $validated['area_id'] ?? null;
+
+            if (! $areaId) {
+                $area = Area::firstOrCreate(
+                    ['name' => $validated['new_area_name']],
+                    ['city' => $validated['new_area_city'] ?: 'Karachi']
+                );
+
+                $areaId = $area->id;
+            }
+
             $clinic = Clinic::create([
-                'area_id' => $validated['area_id'],
+                'area_id' => $areaId,
                 'name' => $validated['clinic_name'],
                 'slug' => Str::slug($validated['clinic_name']).'-'.Str::lower(Str::random(5)),
                 'phone' => $validated['clinic_phone'] ?? null,

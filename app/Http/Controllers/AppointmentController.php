@@ -33,6 +33,7 @@ class AppointmentController extends Controller
 
         $doctor = Doctor::with(['clinic', 'user'])->findOrFail($validated['doctor_id']);
         $appointmentDate = Carbon::parse($validated['appointment_date']);
+        $clinicHoursLabel = $doctor->clinic->hoursLabel();
         $schedule = DoctorSchedule::query()
             ->where('doctor_id', $doctor->id)
             ->where('weekday', $appointmentDate->dayOfWeek)
@@ -44,11 +45,18 @@ class AppointmentController extends Controller
         }
 
         if (! empty($validated['appointment_time'])) {
-            $requestedTime = Carbon::createFromFormat('H:i', $validated['appointment_time'])->format('H:i:s');
+            $requestedDateTime = Carbon::parse($appointmentDate->toDateString().' '.$validated['appointment_time']);
+            $requestedTime = $requestedDateTime->format('H:i:s');
 
             if ($requestedTime < $schedule->starts_at->format('H:i:s') || $requestedTime > $schedule->ends_at->format('H:i:s')) {
                 return back()->withErrors(['appointment_time' => 'Selected time is outside doctor schedule.'])->withInput();
             }
+
+            if (! $doctor->clinic->isOpenAt($requestedDateTime)) {
+                return back()->withErrors(['appointment_time' => 'Selected time is outside clinic hours. Clinic hours: '.$clinicHoursLabel.'.'])->withInput();
+            }
+        } elseif ($appointmentDate->isToday() && ! $doctor->clinic->isOpenAt(now())) {
+            return back()->withErrors(['appointment_date' => 'This clinic is closed right now. Tokens can be booked during clinic hours: '.$clinicHoursLabel.'.'])->withInput();
         }
 
         $bookedSlots = Appointment::query()

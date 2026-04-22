@@ -26,25 +26,25 @@
         ],
         default => [
             ['label' => 'Appointments', 'icon' => 'ph-calendar-check', 'href' => route('patient.appointments'), 'active' => request()->routeIs('patient.appointments')],
+            ['label' => 'Book Token', 'icon' => 'ph-ticket', 'href' => route('clinics.index'), 'active' => request()->routeIs('clinics.*')],
             ['label' => 'AI Tools', 'icon' => 'ph-sparkle', 'href' => route('patient.ai-tools'), 'active' => request()->routeIs('patient.ai-tools')],
             ['label' => 'Platform Reviews', 'icon' => 'ph-star-half', 'href' => route('patient.reviews'), 'active' => request()->routeIs('patient.reviews')],
-            ['label' => 'Book Token', 'icon' => 'ph-ticket', 'href' => route('clinics.index'), 'active' => request()->routeIs('clinics.*')],
         ],
     };
 @endphp
 
-<aside class="glass-panel rounded-[2rem] p-5 shadow-glass lg:sticky lg:top-28">
-    <div class="flex items-center justify-between gap-3 pb-5 border-b border-slate-200/70">
+<aside class="dashboard-sidebar-card rounded-[1.75rem] p-4 lg:sticky lg:top-28">
+    <div class="flex items-center justify-between gap-3 pb-5 border-b border-slate-100">
         <div class="flex items-center gap-3 min-w-0">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-premium text-white flex items-center justify-center text-2xl font-black shrink-0">
+            <div class="w-11 h-11 rounded-2xl bg-primary text-white flex items-center justify-center text-xl font-black shrink-0 shadow-glow-primary">
                 {{ strtoupper(substr($user->name, 0, 1)) }}
             </div>
             <div class="min-w-0">
-                <p class="text-xs uppercase tracking-widest text-primary font-bold">{{ $roleLabel }}</p>
-                <h2 class="text-lg font-extrabold text-dark leading-tight truncate">{{ $user->name }}</h2>
+                <h2 class="text-base font-extrabold text-dark leading-tight truncate">{{ $user->name }}</h2>
+                <p class="text-[11px] uppercase tracking-[0.18em] text-slate-400 font-black">{{ $roleLabel }}</p>
             </div>
         </div>
-        <button type="button" id="dashboard-sidebar-toggle" class="lg:hidden w-11 h-11 rounded-2xl bg-white/80 text-dark border border-slate-100 flex items-center justify-center text-2xl">
+        <button type="button" id="dashboard-sidebar-toggle" class="lg:hidden w-10 h-10 rounded-2xl bg-slate-50 text-dark border border-slate-100 flex items-center justify-center text-2xl">
             <i class="ph-bold ph-list"></i>
         </button>
     </div>
@@ -54,17 +54,17 @@
         @foreach ($links as $link)
             <a
                 href="{{ $link['href'] }}"
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all {{ $link['active'] ? 'bg-gradient-premium text-white shadow-glow' : 'text-slate-600 hover:bg-primary/10 hover:text-primary' }}"
+                class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-extrabold transition-all {{ $link['active'] ? 'bg-primary text-white shadow-[0_16px_32px_-18px_rgba(37,99,235,0.9)]' : 'text-slate-500 hover:bg-slate-50 hover:text-primary' }}"
             >
-                <i class="ph-fill {{ $link['icon'] }} text-xl"></i>
+                <i class="ph-fill {{ $link['icon'] }} text-lg"></i>
                 {{ $link['label'] }}
             </a>
         @endforeach
     </nav>
 
-    <div class="mt-6 rounded-3xl bg-slate-900 text-white p-5">
-        <p class="text-xs uppercase tracking-widest text-blue-200 font-bold">Quick Tip</p>
-        <p class="text-sm text-slate-200 mt-3 leading-relaxed">Use this sidebar to jump between key dashboard sections and manage your queue faster.</p>
+    <div class="mt-6 rounded-[1.5rem] bg-slate-50 border border-slate-100 p-5">
+        <p class="text-[11px] uppercase tracking-[0.18em] text-primary font-black">Quick Tip</p>
+        <p class="text-sm text-slate-500 mt-3 leading-relaxed font-medium">Use this sidebar to jump between key dashboard sections and manage your queue faster.</p>
     </div>
     </div>
 </aside>

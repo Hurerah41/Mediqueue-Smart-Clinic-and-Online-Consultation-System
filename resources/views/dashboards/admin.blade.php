@@ -6,14 +6,14 @@
 @endphp
 
 @section('content')
-    <div class="grid lg:grid-cols-[280px_minmax(0,1fr)] gap-6 items-start">
+    <div class="dashboard-page grid lg:grid-cols-[280px_minmax(0,1fr)] gap-6 items-start">
         @include('dashboards.partials.sidebar')
 
         <div>
             <div class="flex flex-wrap items-start justify-between gap-6 mb-10">
                 <div>
-                    <p class="text-sm uppercase tracking-widest text-primary font-bold">Clinic Admin Dashboard</p>
-                    <h1 class="text-5xl font-extrabold tracking-tight text-dark mt-2">{{ $clinic?->name ?? 'Clinic' }}</h1>
+                    <p class="text-sm text-slate-500 font-bold">Clinic operations overview for today.</p>
+                    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-dark mt-2">{{ $clinic?->name ?? 'Clinic' }}</h1>
                     <p class="text-slate-500 mt-2">{{ $clinic?->area?->name }} | {{ $clinic?->address }}</p>
                 </div>
     </div>
@@ -21,7 +21,7 @@
     @if ($activeAdminSection === 'reports')
     <div id="admin-analytics" class="grid md:grid-cols-5 gap-4 mb-8">
         @foreach ($stats as $label => $value)
-            <div class="glass-panel rounded-3xl p-6 shadow-glass">
+            <div class="dashboard-card rounded-3xl p-6">
                 <div class="text-xs uppercase tracking-widest text-slate-500 font-bold">{{ str_replace('_', ' ', $label) }}</div>
                 <div class="text-4xl font-black text-gradient mt-3" data-live-stat="{{ $label }}">{{ $value }}</div>
             </div>
@@ -29,7 +29,7 @@
     </div>
 
     <div class="grid lg:grid-cols-2 gap-6 mb-8">
-        <section class="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-soft">
+        <section class="dashboard-card rounded-[2rem] p-8">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-extrabold text-dark">7-Day Appointments</h2>
                 <i class="ph-fill ph-chart-line-up text-2xl text-primary"></i>
@@ -37,7 +37,7 @@
             <canvas id="appointmentTrendChart" height="140"></canvas>
         </section>
 
-        <section class="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-soft">
+        <section class="dashboard-card rounded-[2rem] p-8">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-extrabold text-dark">7-Day Prescriptions</h2>
                 <i class="ph-fill ph-pill text-2xl text-secondary"></i>
@@ -49,7 +49,7 @@
 
     @if ($activeAdminSection === 'doctors')
     <div class="grid xl:grid-cols-3 gap-6">
-        <section id="admin-doctors" class="xl:col-span-2 bg-white rounded-[2rem] border border-slate-100 p-8 shadow-soft">
+        <section id="admin-doctors" class="xl:col-span-2 dashboard-card rounded-[2rem] p-8">
             <h2 class="text-2xl font-extrabold mb-6 text-dark">Doctors & Weekly Schedules</h2>
             <div class="space-y-6">
                 @foreach ($doctors as $doctor)
@@ -116,7 +116,7 @@
             </div>
         </section>
 
-        <section class="glass-panel rounded-[2rem] p-8 shadow-glass">
+        <section class="dashboard-card rounded-[2rem] p-8">
             <h2 class="text-xl font-extrabold mb-5 text-dark">Add Doctor</h2>
             <form method="POST" action="{{ route('admin.doctors.store') }}" enctype="multipart/form-data" class="space-y-4">
                 @csrf
@@ -148,7 +148,7 @@
 
     @if ($activeAdminSection === 'settings')
     <div class="grid gap-6">
-        <section class="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-soft">
+        <section class="dashboard-card rounded-[2rem] p-8">
             <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
                 <div>
                     <h2 class="text-2xl font-extrabold text-dark">Clinic Profile & Branding</h2>

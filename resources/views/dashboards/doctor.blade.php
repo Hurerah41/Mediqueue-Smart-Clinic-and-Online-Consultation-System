@@ -5,19 +5,19 @@
         $activeDoctorSection = $activeDoctorSection ?? 'queue';
     @endphp
 
-    <div class="grid lg:grid-cols-[280px_minmax(0,1fr)] gap-6 items-start">
+    <div class="dashboard-page grid lg:grid-cols-[280px_minmax(0,1fr)] gap-6 items-start">
         @include('dashboards.partials.sidebar')
 
         <div>
             <div class="flex flex-wrap items-start justify-between gap-6 mb-8">
                 <div>
-                    <p class="text-sm uppercase tracking-widest text-primary font-bold">Doctor Queue Board</p>
-                    <h1 class="text-5xl font-extrabold tracking-tight text-dark mt-2">Dr. {{ auth()->user()->name }}</h1>
+                    <p class="text-sm text-slate-500 font-bold">Live queue sync enabled</p>
+                    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-dark mt-2">Good morning, Dr. {{ auth()->user()->name }}</h1>
                     <p class="text-slate-500 mt-2">{{ $doctor->specialization->name }} | {{ $doctor->clinic->name }}</p>
                     <p class="text-xs text-accent font-bold mt-2 uppercase tracking-widest">Live queue sync enabled</p>
                 </div>
 
-        <div class="glass-panel rounded-[2rem] p-6 shadow-glass min-w-[280px]">
+        <div class="dashboard-card rounded-[2rem] p-6 min-w-[280px]">
             <p class="text-xs uppercase tracking-widest text-primary font-bold">Currently Serving</p>
             <h2 class="text-3xl font-black text-gradient mt-3" id="serving-token">--</h2>
             <p class="text-sm text-slate-600 mt-2" id="serving-patient">No patient called yet</p>
@@ -26,36 +26,36 @@
 
     @if ($activeDoctorSection === 'queue')
     <div class="grid md:grid-cols-3 gap-4 mb-8">
-        <div class="glass-panel rounded-3xl p-6 shadow-glass">
+        <div class="dashboard-card rounded-3xl p-6">
             <div class="text-xs uppercase tracking-widest text-slate-500 font-bold">Waiting</div>
             <div class="text-4xl font-black text-gradient mt-3" id="waiting-count">0</div>
         </div>
-        <div class="glass-panel rounded-3xl p-6 shadow-glass">
+        <div class="dashboard-card rounded-3xl p-6">
             <div class="text-xs uppercase tracking-widest text-slate-500 font-bold">Called / In Progress</div>
             <div class="text-4xl font-black text-gradient mt-3" id="called-count">0</div>
         </div>
-        <div class="glass-panel rounded-3xl p-6 shadow-glass">
+        <div class="dashboard-card rounded-3xl p-6">
             <div class="text-xs uppercase tracking-widest text-slate-500 font-bold">Completed</div>
             <div class="text-4xl font-black text-gradient mt-3" id="completed-count">0</div>
         </div>
     </div>
 
     <div id="doctor-queue-board" class="grid xl:grid-cols-3 gap-6">
-        <section class="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-soft">
+        <section class="dashboard-card rounded-[2rem] p-6">
             <h2 class="text-2xl font-extrabold text-dark mb-5">Waiting Queue</h2>
             <div class="space-y-4" id="waiting-column">
                 <p class="text-slate-500">Loading queue...</p>
             </div>
         </section>
 
-        <section class="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-soft">
+        <section class="dashboard-card rounded-[2rem] p-6">
             <h2 class="text-2xl font-extrabold text-dark mb-5">Called Now</h2>
             <div class="space-y-4" id="called-column">
                 <p class="text-slate-500">No active patient.</p>
             </div>
         </section>
 
-        <section class="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-soft">
+        <section class="dashboard-card rounded-[2rem] p-6">
             <h2 class="text-2xl font-extrabold text-dark mb-5">Completed Today</h2>
             <div class="space-y-4" id="completed-column">
                 <p class="text-slate-500">No completed visits yet.</p>
@@ -65,7 +65,7 @@
     @endif
 
     @if ($activeDoctorSection === 'prescriptions')
-    <div id="doctor-prescriptions" class="mt-8 bg-white rounded-[2rem] border border-slate-100 p-8 shadow-soft">
+    <div id="doctor-prescriptions" class="mt-8 dashboard-card rounded-[2rem] p-8">
         <h2 class="text-2xl font-extrabold mb-5 text-dark">Prescription Desk</h2>
         <p class="text-sm text-slate-500 mb-6">Select a called/completed appointment from the queue board, open consultation if needed, and save/update the prescription below.</p>
 

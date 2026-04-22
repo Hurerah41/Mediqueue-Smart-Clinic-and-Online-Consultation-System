@@ -5,21 +5,24 @@
         $activePatientSection = $activePatientSection ?? 'appointments';
     @endphp
 
-    <div class="grid lg:grid-cols-[280px_minmax(0,1fr)] gap-6 items-start">
+    <div class="dashboard-page grid lg:grid-cols-[280px_minmax(0,1fr)] gap-6 items-start">
         @include('dashboards.partials.sidebar')
 
         <div>
-            <div class="flex flex-wrap items-center justify-between gap-4 mb-10">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
                 <div>
-                    <p class="text-sm uppercase tracking-widest text-primary font-bold">Patient Dashboard</p>
-                    <h1 class="text-5xl font-extrabold tracking-tight text-dark mt-2">Hello, {{ auth()->user()->name }}</h1>
+                    <p class="text-sm text-slate-500 font-bold">Here is your health overview for today.</p>
+                    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-dark mt-2">Good morning, {{ auth()->user()->name }}</h1>
                 </div>
-                <a href="{{ route('clinics.index') }}" class="bg-dark text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all">Book New Token</a>
+                <a href="{{ route('clinics.index') }}" class="dashboard-action px-6 py-3 rounded-2xl font-extrabold transition-all inline-flex items-center gap-2">
+                    <i class="ph-bold ph-plus"></i>
+                    Book New Token
+                </a>
         </div>
 
     <div class="grid xl:grid-cols-3 gap-6">
         @if ($activePatientSection === 'appointments')
-        <section id="patient-appointments" class="xl:col-span-2 bg-white rounded-[2rem] border border-slate-100 p-8 shadow-soft">
+        <section id="patient-appointments" class="xl:col-span-2 dashboard-card rounded-[2rem] p-6 sm:p-8">
             <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div>
                     <h2 class="text-2xl font-extrabold text-dark">Live Queue & Appointments</h2>
@@ -32,7 +35,7 @@
             </div>
             <div class="space-y-4" id="patient-appointments-list">
                 @forelse ($appointments as $appointment)
-                    <div class="premium-card rounded-[2rem] border border-slate-100 p-5 bg-gradient-to-br from-white to-slate-50">
+                    <div class="premium-card dashboard-card-soft rounded-[2rem] p-5">
                         <div class="flex flex-wrap items-start justify-between gap-4">
                             <div class="flex items-start gap-4">
                                 <div class="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-2xl shrink-0">
@@ -98,7 +101,7 @@
 
         @if ($activePatientSection === 'ai-tools')
         <section class="space-y-6 xl:col-span-2">
-            <div id="patient-ai" class="glass-panel rounded-[2rem] p-6 shadow-glass">
+            <div id="patient-ai" class="dashboard-card rounded-[2rem] p-6">
                 <div class="flex items-center gap-3 mb-5">
                     <div class="w-12 h-12 rounded-2xl bg-purple-50 text-secondary flex items-center justify-center text-xl">
                         <i class="ph-fill ph-sparkle"></i>
@@ -112,7 +115,7 @@
                 <div id="symptom-result" class="mt-4 text-sm text-slate-700"></div>
             </div>
 
-            <div id="patient-chatbot" class="glass-panel rounded-[2rem] p-6 shadow-glass">
+            <div id="patient-chatbot" class="dashboard-card rounded-[2rem] p-6">
                 <div class="flex items-center gap-3 mb-5">
                     <div class="w-12 h-12 rounded-2xl bg-blue-50 text-primary flex items-center justify-center text-xl">
                         <i class="ph-fill ph-chat-circle-text"></i>
@@ -130,7 +133,7 @@
 
         @if ($activePatientSection === 'reviews')
         <section class="xl:col-span-2">
-            <div id="patient-platform-reviews" class="bg-white rounded-[2rem] p-6 shadow-soft border border-slate-100">
+            <div id="patient-platform-reviews" class="dashboard-card rounded-[2rem] p-6">
                 <div class="flex items-center gap-3 mb-5">
                     <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl">
                         <i class="ph-fill ph-star-half"></i>
