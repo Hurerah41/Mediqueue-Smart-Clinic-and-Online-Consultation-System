@@ -12,8 +12,10 @@ class Appointment extends Model
     use HasFactory;
 
     public const STATUS_BOOKED = 'booked';
+    public const STATUS_PENDING_PAYMENT = 'pending_payment';
     public const STATUS_IN_PROGRESS = 'in_progress';
     public const STATUS_COMPLETED = 'completed';
+    public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
         'clinic_id',
@@ -62,5 +64,10 @@ class Appointment extends Model
     public function prescription(): HasOne
     {
         return $this->hasOne(Prescription::class);
+    }
+
+    public function payment(): HasOne
+    {
+        return $this->hasOne(AppointmentPayment::class);
     }
 }

@@ -251,6 +251,11 @@
                                         <option value="online">Online Consultation</option>
                                     @endif
                                 </select>
+                                @if ($doctor->offers_online_consultation)
+                                    <div class="md:col-span-2 rounded-[1.2rem] bg-blue-50 border border-blue-100 px-4 py-3 text-sm font-semibold text-primary">
+                                        Online consultations require payment first. Your queue token and video room are created after payment confirmation.
+                                    </div>
+                                @endif
                                 <textarea name="symptoms" rows="2" class="md:col-span-2 form-control" placeholder="Describe symptoms" @disabled(! $isClinicOpen)></textarea>
                                 <button type="submit" class="md:col-span-2 {{ $isClinicOpen ? 'bg-dark text-white hover:bg-primary' : 'bg-slate-200 text-slate-500 cursor-not-allowed' }} py-3.5 rounded-[1.2rem] font-bold transition-colors" @disabled(! $isClinicOpen)>
                                     {{ $isClinicOpen ? 'Book Appointment' : 'Clinic Closed' }}

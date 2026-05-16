@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AppNotification;
 use App\Models\Appointment;
+use App\Models\AppointmentPayment;
 use App\Models\Consultation;
 use App\Models\Doctor;
 use App\Models\DoctorSchedule;
@@ -72,6 +73,40 @@ class AppointmentController extends Controller
             return back()->withErrors(['consultation_type' => 'This doctor does not offer online consultation.'])->withInput();
         }
 
+        if ($validated['consultation_type'] === 'online' && config('payments.online_appointments.enabled', true)) {
+            $payment = DB::transaction(function () use ($validated, $doctor, $request): AppointmentPayment {
+                $appointment = Appointment::create([
+                    'clinic_id' => $doctor->clinic_id,
+                    'doctor_id' => $doctor->id,
+                    'patient_id' => $request->user()->id,
+                    'appointment_date' => $validated['appointment_date'],
+                    'appointment_time' => $validated['appointment_time'],
+                    'consultation_type' => $validated['consultation_type'],
+                    'symptoms' => $validated['symptoms'] ?? null,
+                    'status' => Appointment::STATUS_PENDING_PAYMENT,
+                    'estimated_wait_minutes' => 0,
+                ]);
+
+                return AppointmentPayment::create([
+                    'appointment_id' => $appointment->id,
+                    'patient_id' => $request->user()->id,
+                    'clinic_id' => $doctor->clinic_id,
+                    'doctor_id' => $doctor->id,
+                    'amount' => $doctor->consultation_fee,
+                    'currency' => config('payments.currency', 'PKR'),
+                    'gateway' => config('payments.gateway', 'local_test'),
+                    'status' => AppointmentPayment::STATUS_PENDING,
+                    'metadata' => [
+                        'purpose' => 'online_consultation',
+                        'doctor_name' => $doctor->user?->name,
+                        'clinic_name' => $doctor->clinic?->name,
+                    ],
+                ]);
+            });
+
+            return redirect()->route('payments.show', $payment)->with('success', 'Complete payment to confirm your online appointment token.');
+        }
+
         $appointment = DB::transaction(function () use ($validated, $doctor, $request): Appointment {
             $tokenNumber = QueueToken::query()
                 ->where('doctor_id', $doctor->id)
@@ -132,7 +167,7 @@ class AppointmentController extends Controller
         $this->authorizeAppointmentAccess($request, $appointment);
 
         return view('appointments.show', [
-            'appointment' => $appointment->load(['clinic.area', 'doctor.user', 'doctor.specialization', 'patient', 'queueToken', 'consultation.messages.sender', 'prescription.items']),
+            'appointment' => $appointment->load(['clinic.area', 'doctor.user', 'doctor.specialization', 'patient', 'queueToken', 'payment', 'consultation.messages.sender', 'prescription.items']),
             'queuePosition' => $queueService->queuePosition($appointment),
         ]);
     }

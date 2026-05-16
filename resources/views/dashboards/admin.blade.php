@@ -72,6 +72,46 @@
                             </div>
                         </div>
 
+                        <div class="mb-5 rounded-3xl bg-slate-50 border border-slate-100 p-4">
+                            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                                <div>
+                                    <div class="text-sm font-extrabold text-dark">Assigned helpers / compounders</div>
+                                    <div class="text-xs text-slate-500 mt-1">Helpers assigned here can manage this doctor's queue and prescription pickup list.</div>
+                                </div>
+                                @if ($doctor->helpers->isNotEmpty())
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach ($doctor->helpers as $helper)
+                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-bold text-slate-600">
+                                                <i class="ph-fill ph-first-aid-kit text-primary"></i>
+                                                {{ $helper->name }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <span class="rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-bold text-slate-400">No helper assigned</span>
+                                @endif
+                            </div>
+
+                            <form method="POST" action="{{ route('admin.doctors.helper.update', $doctor) }}" class="grid sm:grid-cols-[1fr_auto_auto] gap-3">
+                                @csrf
+                                @method('PATCH')
+                                <select name="helper_id" class="form-control">
+                                    <option value="">Select helper to assign</option>
+                                    @foreach (($helpers ?? collect()) as $helper)
+                                        <option value="{{ $helper->id }}">
+                                            {{ $helper->name }}{{ $helper->doctor_id && $helper->doctor_id !== $doctor->id ? ' - assigned to another doctor' : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <button class="bg-dark text-white px-5 py-3 rounded-2xl font-bold hover:bg-primary transition-colors" type="submit">
+                                    Assign Helper
+                                </button>
+                                <button class="bg-white border border-slate-200 text-slate-600 px-5 py-3 rounded-2xl font-bold hover:border-rose-200 hover:text-rose-600 transition-colors" type="submit" name="helper_id" value="">
+                                    Clear
+                                </button>
+                            </form>
+                        </div>
+
                         <div class="grid md:grid-cols-2 gap-3 mb-5">
                             @forelse ($doctor->schedules as $schedule)
                                 <div class="rounded-3xl bg-slate-50 p-4 flex items-center justify-between gap-3">
@@ -187,47 +227,58 @@
         const chartLabels = @json($trendLabels);
         const adminDashboardLiveUrl = "{{ route('dashboard.live') }}";
 
-        new Chart(document.getElementById('appointmentTrendChart'), {
-            type: 'line',
-            data: {
-                labels: chartLabels,
-                datasets: [{
-                    label: 'Appointments',
-                    data: @json($appointmentTrend),
-                    borderColor: '#2563EB',
-                    backgroundColor: 'rgba(37,99,235,0.12)',
-                    fill: true,
-                    tension: 0.45
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, ticks: { precision: 0 } },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
+        const appointmentTrendChart = document.getElementById('appointmentTrendChart');
+        const prescriptionTrendChart = document.getElementById('prescriptionTrendChart');
 
-        new Chart(document.getElementById('prescriptionTrendChart'), {
-            type: 'bar',
-            data: {
-                labels: chartLabels,
-                datasets: [{
-                    label: 'Prescriptions',
-                    data: @json($prescriptionTrend),
-                    backgroundColor: 'rgba(124,58,237,0.75)',
-                    borderRadius: 14
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, ticks: { precision: 0 } },
-                    x: { grid: { display: false } }
+        if (appointmentTrendChart) {
+            new Chart(appointmentTrendChart, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Appointments',
+                        data: @json($appointmentTrend),
+                        borderColor: '#2563EB',
+                        backgroundColor: 'rgba(37,99,235,0.12)',
+                        fill: true,
+                        tension: 0.45
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } },
+                        x: { grid: { display: false } }
+                    }
                 }
-            }
-        });
+            });
+        }
+
+        if (prescriptionTrendChart) {
+            new Chart(prescriptionTrendChart, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Prescriptions',
+                        data: @json($prescriptionTrend),
+                        backgroundColor: 'rgba(124,58,237,0.75)',
+                        borderRadius: 14
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
 
         async function refreshAdminStats() {
             const response = await fetch(adminDashboardLiveUrl, {

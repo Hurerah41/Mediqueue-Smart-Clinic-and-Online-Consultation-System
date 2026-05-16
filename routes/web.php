@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminDoctorController;
+use App\Http\Controllers\AdminDoctorHelperController;
 use App\Http\Controllers\AdminDoctorScheduleController;
 use App\Http\Controllers\AdminClinicProfileController;
 use App\Http\Controllers\AdminDashboardPageController;
@@ -14,11 +15,13 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardLiveController;
 use App\Http\Controllers\DoctorQueueController;
 use App\Http\Controllers\DoctorDashboardPageController;
+use App\Http\Controllers\HelperController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OwnerDashboardController;
 use App\Http\Controllers\OwnerPlatformSettingController;
 use App\Http\Controllers\PatientDashboardPageController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SuperAdminClinicApplicationController;
@@ -59,6 +62,9 @@ Route::middleware('auth')->group(function (): void {
         ->name('appointments.store');
     Route::get('/appointments/{appointment}', [AppointmentController::class, 'show'])->name('appointments.show');
     Route::get('/appointments/{appointment}/status', [AppointmentController::class, 'status'])->name('appointments.status');
+    Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::post('/payments/{payment}/confirm', [PaymentController::class, 'confirm'])->name('payments.confirm');
+    Route::post('/payments/{payment}/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
 
     Route::get('/consultations/{consultation}', [ConsultationController::class, 'show'])->name('consultations.show');
     Route::get('/consultations/{consultation}/messages', [ConsultationController::class, 'messages'])->name('consultations.messages.index');
@@ -82,6 +88,15 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/doctor/appointments/{appointment}/prescriptions', [PrescriptionController::class, 'store'])
         ->middleware('role:doctor')
         ->name('doctor.prescriptions.store');
+    Route::get('/helper/dashboard', [HelperController::class, 'index'])
+        ->middleware('role:helper')
+        ->name('helper.dashboard');
+    Route::post('/helper/queue/next', [HelperController::class, 'nextPatient'])
+        ->middleware('role:helper')
+        ->name('helper.queue.next');
+    Route::post('/helper/appointments/{appointment}/complete', [HelperController::class, 'markComplete'])
+        ->middleware('role:helper')
+        ->name('helper.appointments.complete');
     Route::get('/prescriptions/{prescription}/download', [PrescriptionController::class, 'download'])
         ->name('prescriptions.download');
     Route::get('/prescriptions/{prescription}/image', [PrescriptionController::class, 'downloadImage'])
@@ -102,6 +117,9 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/admin/doctors/{doctor}/schedules', [AdminDoctorScheduleController::class, 'store'])
         ->middleware('role:admin')
         ->name('admin.doctors.schedules.store');
+    Route::patch('/admin/doctors/{doctor}/helper', [AdminDoctorHelperController::class, 'update'])
+        ->middleware('role:admin')
+        ->name('admin.doctors.helper.update');
     Route::delete('/admin/doctors/{doctor}/schedules/{schedule}', [AdminDoctorScheduleController::class, 'destroy'])
         ->middleware('role:admin')
         ->name('admin.doctors.schedules.destroy');

@@ -348,6 +348,10 @@
         isolation: isolate;
     }
 
+    .dashboard-page > * {
+        min-width: 0;
+    }
+
     .dashboard-page::before {
         content: '';
         position: fixed;
@@ -375,6 +379,7 @@
         box-shadow: 0 24px 70px -42px rgba(15, 23, 42, 0.22);
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
+        min-width: 0;
     }
 
     .dashboard-card-soft {
@@ -499,5 +504,100 @@
     .hide-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
+    }
+
+    @media (max-width: 640px) {
+        .dashboard-page {
+            gap: 0.875rem !important;
+        }
+
+        .dashboard-page h1 {
+            font-size: 1.875rem !important;
+            line-height: 2.25rem !important;
+            overflow-wrap: anywhere;
+        }
+
+        .dashboard-page h2 {
+            font-size: 1.25rem !important;
+            line-height: 1.75rem !important;
+            overflow-wrap: anywhere;
+        }
+
+        .dashboard-page h3,
+        .dashboard-page .text-lg,
+        .dashboard-page .text-xl {
+            overflow-wrap: anywhere;
+        }
+
+        .dashboard-card,
+        .dashboard-sidebar-card,
+        .dashboard-card-soft {
+            border-radius: 1.25rem !important;
+        }
+
+        .dashboard-card {
+            padding: 1rem !important;
+        }
+
+        .dashboard-sidebar-card {
+            padding: 0.875rem !important;
+            position: relative !important;
+            top: auto !important;
+        }
+
+        .dashboard-card-soft {
+            padding: 1rem !important;
+        }
+
+        .dashboard-action,
+        .dashboard-page button,
+        .dashboard-page a[class*="px-5"],
+        .dashboard-page a[class*="px-6"] {
+            width: 100%;
+            justify-content: center;
+            min-height: 2.875rem;
+        }
+
+        .dashboard-page .text-4xl,
+        .dashboard-page .text-5xl {
+            font-size: 2rem !important;
+            line-height: 2.35rem !important;
+        }
+
+        .dashboard-page .text-right {
+            text-align: left !important;
+        }
+
+        .dashboard-page .min-w-\[280px\] {
+            min-width: 0 !important;
+            width: 100% !important;
+        }
+
+        .dashboard-page canvas {
+            max-width: 100% !important;
+        }
+
+        .dashboard-page .form-control {
+            min-height: 2.9rem;
+            font-size: 0.95rem;
+        }
+
+        .dashboard-page input,
+        .dashboard-page select,
+        .dashboard-page textarea {
+            min-width: 0;
+        }
+
+        .dashboard-page .rounded-\[2rem\],
+        .dashboard-page .rounded-3xl,
+        .dashboard-page .rounded-\[1\.75rem\] {
+            border-radius: 1.25rem !important;
+        }
+
+        .dashboard-page .p-8,
+        .dashboard-page .p-6,
+        .dashboard-page .p-5 {
+            padding: 1rem !important;
+        }
     }
 }

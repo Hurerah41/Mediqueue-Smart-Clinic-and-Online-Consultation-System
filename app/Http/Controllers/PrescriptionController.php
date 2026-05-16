@@ -149,6 +149,7 @@ class PrescriptionController extends Controller
             $user->isSuperAdmin()
             || $prescription->patient_id === $user->id
             || ($user->doctorProfile && $prescription->doctor_id === $user->doctorProfile->id)
+            || ($user->isHelper() && $prescription->appointment?->clinic_id === $user->clinic_id && (! $user->doctor_id || $prescription->doctor_id === $user->doctor_id))
             || ($user->isAdmin() && $prescription->appointment?->clinic_id === $user->clinic_id),
             403
         );

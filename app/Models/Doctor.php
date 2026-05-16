@@ -66,6 +66,11 @@ class Doctor extends Model
         return $this->hasMany(Prescription::class);
     }
 
+    public function helpers(): HasMany
+    {
+        return $this->hasMany(User::class, 'doctor_id');
+    }
+
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);

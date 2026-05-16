@@ -19,6 +19,7 @@ class User extends Authenticatable
     public const ROLE_SUPER_ADMIN = 'super_admin';
     public const ROLE_ADMIN = 'admin';
     public const ROLE_DOCTOR = 'doctor';
+    public const ROLE_HELPER = 'helper';
     public const ROLE_PATIENT = 'patient';
 
     /**
@@ -28,6 +29,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'clinic_id',
+        'doctor_id',
         'name',
         'phone',
         'email',
@@ -71,6 +73,11 @@ class User extends Authenticatable
         return $this->belongsTo(Clinic::class);
     }
 
+    public function assignedDoctor(): BelongsTo
+    {
+        return $this->belongsTo(Doctor::class, 'doctor_id');
+    }
+
     public function doctorProfile(): HasOne
     {
         return $this->hasOne(Doctor::class);
@@ -109,6 +116,11 @@ class User extends Authenticatable
     public function isDoctor(): bool
     {
         return $this->role === self::ROLE_DOCTOR;
+    }
+
+    public function isHelper(): bool
+    {
+        return $this->role === self::ROLE_HELPER;
     }
 
     public function isPatient(): bool

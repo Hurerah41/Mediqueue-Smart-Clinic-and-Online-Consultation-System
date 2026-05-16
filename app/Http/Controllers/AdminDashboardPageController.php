@@ -7,6 +7,7 @@ use App\Models\Doctor;
 use App\Models\Prescription;
 use App\Models\QueueToken;
 use App\Models\Specialization;
+use App\Models\User;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -52,9 +53,14 @@ class AdminDashboardPageController extends Controller
             'activeAdminSection' => $activeAdminSection,
             'clinic' => $clinic,
             'doctors' => Doctor::query()
-                ->with(['user', 'specialization', 'schedules' => fn ($query) => $query->orderBy('weekday')])
+                ->with(['user', 'specialization', 'helpers', 'schedules' => fn ($query) => $query->orderBy('weekday')])
                 ->where('clinic_id', $user->clinic_id)
                 ->latest()
+                ->get(),
+            'helpers' => User::query()
+                ->where('role', User::ROLE_HELPER)
+                ->where('clinic_id', $user->clinic_id)
+                ->orderBy('name')
                 ->get(),
             'specializations' => Specialization::orderBy('name')->get(),
             'stats' => [

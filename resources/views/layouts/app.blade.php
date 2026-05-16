@@ -12,7 +12,17 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-grid-pattern text-slate-500 font-sans antialiased overflow-x-hidden selection:bg-primary/20 selection:text-primary relative flex flex-col">
+@php
+    $isDashboardShell = request()->routeIs('dashboard', 'admin.*', 'owner.*', 'doctor.*', 'helper.*', 'patient.*');
+    $dashboardRoleLabel = auth()->check() ? match (auth()->user()->role) {
+        \App\Models\User::ROLE_SUPER_ADMIN => 'Platform Owner',
+        \App\Models\User::ROLE_ADMIN => 'Clinic Admin',
+        \App\Models\User::ROLE_DOCTOR => 'Doctor',
+        \App\Models\User::ROLE_HELPER => 'Doctor Helper',
+        default => 'Patient',
+    } : null;
+@endphp
+<body class="min-h-screen {{ $isDashboardShell ? 'bg-slate-50' : 'bg-grid-pattern' }} text-slate-500 font-sans antialiased overflow-x-hidden selection:bg-primary/20 selection:text-primary relative flex flex-col">
     <div id="page-loader" class="page-loader" role="status" aria-live="polite" aria-label="Loading MediQueue">
         <div class="loader-card">
             <div class="loader-logo-wrap">
@@ -26,8 +36,11 @@
         </div>
     </div>
 
-    <div class="hero-gradient"></div>
+    @unless ($isDashboardShell)
+        <div class="hero-gradient"></div>
+    @endunless
 
+    @unless ($isDashboardShell)
     <nav class="fixed top-0 w-full z-50 transition-all duration-300 pt-3" id="navbar">
         <div class="nav-shell w-[96%] max-w-[1700px] mx-auto px-3 sm:px-4 lg:px-5 h-16 sm:h-[4.5rem] rounded-[1.6rem] flex items-center justify-between transition-all duration-300">
             <a href="{{ route('home') }}" class="flex items-center gap-2 group">
@@ -41,6 +54,7 @@
                 <a href="{{ route('home') }}" class="hover:text-dark transition-colors relative group">Home<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span></a>
                 <a href="{{ route('clinics.index') }}" class="hover:text-dark transition-colors relative group">Clinics<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span></a>
                 <a href="{{ route('home') }}#features" class="hover:text-dark transition-colors relative group">Features<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span></a>
+                <a href="{{ route('home') }}#ai-section" class="hover:text-dark transition-colors relative group">AI Features<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span></a>
                 <a href="{{ route('home') }}#how-it-works" class="hover:text-dark transition-colors relative group">How it works<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span></a>
             </div>
 
@@ -71,6 +85,7 @@
             <a href="{{ route('home') }}" class="mobile-link hover:text-primary">Home</a>
             <a href="{{ route('clinics.index') }}" class="mobile-link hover:text-primary">Clinics</a>
             <a href="{{ route('home') }}#features" class="mobile-link hover:text-primary">Features</a>
+            <a href="{{ route('home') }}#ai-section" class="mobile-link hover:text-primary">AI Features</a>
             <a href="{{ route('home') }}#how-it-works" class="mobile-link hover:text-primary">How it works</a>
             <hr class="border-slate-100 my-2">
             @auth
@@ -85,8 +100,56 @@
             @endauth
         </div>
     </div>
+    @else
+    <header class="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-200">
+        <div class="w-full sm:w-[96%] max-w-[1700px] mx-auto h-16 sm:h-20 px-3 sm:px-3 lg:px-4 flex items-center justify-between gap-3 sm:gap-4">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 min-w-0">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-glow-primary shrink-0">
+                    <i class="ph-bold ph-heartbeat text-lg sm:text-xl"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-sm sm:text-lg font-black text-dark leading-tight truncate">MediQueue Dashboard</div>
+                    @auth
+                        <div class="text-[9px] sm:text-[11px] uppercase tracking-[0.14em] sm:tracking-[0.18em] text-slate-400 font-black truncate">{{ $dashboardRoleLabel }}</div>
+                    @endauth
+                </div>
+            </a>
 
-    <main class="w-[96%] max-w-[1700px] mx-auto px-2 sm:px-3 lg:px-4 pt-28 pb-12 flex-1">
+            @auth
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="relative">
+                        <button id="notification-bell" type="button" class="relative w-10 h-10 sm:w-11 sm:h-11 rounded-2xl border border-slate-200 bg-white text-slate-600 flex items-center justify-center hover:text-primary hover:border-primary/30 transition-colors" aria-label="Notifications">
+                            <i class="ph-fill ph-bell text-lg sm:text-xl"></i>
+                            <span id="notification-count" class="hidden absolute -top-1 -right-1 min-w-5 h-5 rounded-full bg-rose-500 px-1 text-[10px] font-black text-white flex items-center justify-center">0</span>
+                        </button>
+                        <div id="notification-panel" class="hidden absolute right-0 mt-3 w-[min(22rem,calc(100vw-2rem))] rounded-[1.5rem] border border-slate-200 bg-white p-3 shadow-soft">
+                            <div class="flex items-center justify-between px-2 py-2">
+                                <div class="text-sm font-black text-dark">Notifications</div>
+                                <div class="text-[10px] uppercase tracking-[0.16em] text-slate-400 font-black">Live</div>
+                            </div>
+                            <div id="notification-list" class="max-h-80 overflow-y-auto"></div>
+                        </div>
+                    </div>
+
+                    <a href="{{ route('home') }}" class="hidden sm:inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-600 hover:text-primary hover:border-primary/30 transition-colors">
+                        <i class="ph-bold ph-house"></i>
+                        Site
+                    </a>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center gap-2 rounded-2xl bg-dark px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-bold text-white hover:bg-primary transition-colors">
+                            <i class="ph-bold ph-sign-out"></i>
+                            <span class="hidden sm:inline">Log out</span>
+                        </button>
+                    </form>
+                </div>
+            @endauth
+        </div>
+    </header>
+    @endunless
+
+    <main class="{{ $isDashboardShell ? 'w-full sm:w-[96%] px-3 sm:px-3 lg:px-4 pt-20 sm:pt-24' : 'w-[96%] px-2 sm:px-3 lg:px-4 pt-28' }} max-w-[1700px] mx-auto pb-12 flex-1">
         @if (session('success'))
             <div class="mb-6 rounded-3xl border border-emerald-200 bg-emerald-50/80 px-5 py-4 text-emerald-700 shadow-soft">
                 {{ session('success') }}
@@ -102,6 +165,7 @@
         @yield('content')
     </main>
 
+    @unless ($isDashboardShell)
     <footer class="footer-shell pt-20 pb-8 mt-auto">
         <div class="w-[96%] max-w-[1700px] mx-auto px-2 sm:px-3 lg:px-4 grid grid-cols-2 md:grid-cols-5 gap-10 mb-16">
             <div class="col-span-2">
@@ -150,6 +214,7 @@
             </div>
         </div>
     </footer>
+    @endunless
 
     <div id="toast-stack" class="fixed bottom-6 right-6 z-[9999] space-y-3 w-[calc(100vw-3rem)] max-w-sm"></div>
 

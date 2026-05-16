@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Area;
+use App\Models\Appointment;
 use App\Models\Clinic;
 use App\Models\ClinicApplication;
+use App\Models\Doctor;
 use App\Models\PlatformSetting;
+use App\Models\QueueToken;
 use App\Models\User;
+use Carbon\CarbonPeriod;
 use Illuminate\View\View;
 
 class OwnerDashboardController extends Controller
@@ -38,6 +42,25 @@ class OwnerDashboardController extends Controller
 
     private function renderSection(string $activeOwnerSection): View
     {
+        $trendLabels = [];
+        $appointmentTrend = [];
+        $userTrend = [];
+
+        foreach (CarbonPeriod::create(now()->subDays(6)->startOfDay(), now()->startOfDay()) as $day) {
+            $trendLabels[] = $day->format('d M');
+            $appointmentTrend[] = Appointment::whereDate('appointment_date', $day->toDateString())->count();
+            $userTrend[] = User::whereDate('created_at', $day->toDateString())->count();
+        }
+
+        $stats = [
+            'clinics' => Clinic::count(),
+            'pending_apps' => ClinicApplication::where('status', ClinicApplication::STATUS_PENDING)->count(),
+            'clinic_admins' => User::where('role', User::ROLE_ADMIN)->count(),
+            'doctors' => User::where('role', User::ROLE_DOCTOR)->count(),
+            'helpers' => User::where('role', User::ROLE_HELPER)->count(),
+            'patients' => User::where('role', User::ROLE_PATIENT)->count(),
+        ];
+
         return view('dashboards.super-admin', [
             'activeOwnerSection' => $activeOwnerSection,
             'platformSettings' => PlatformSetting::firstOrCreate(
@@ -57,13 +80,28 @@ class OwnerDashboardController extends Controller
                 ->latest()
                 ->get(),
             'clinics' => Clinic::with(['area', 'users'])->latest()->get(),
-            'users' => User::with('clinic')->latest()->get(),
-            'stats' => [
-                'clinics' => Clinic::count(),
-                'pending_apps' => ClinicApplication::where('status', ClinicApplication::STATUS_PENDING)->count(),
-                'clinic_admins' => User::where('role', User::ROLE_ADMIN)->count(),
-                'doctors' => User::where('role', User::ROLE_DOCTOR)->count(),
-                'patients' => User::where('role', User::ROLE_PATIENT)->count(),
+            'doctors' => Doctor::with(['user', 'clinic'])->latest()->get(),
+            'users' => User::with(['clinic', 'assignedDoctor.user'])->latest()->get(),
+            'stats' => $stats,
+            'ownerMetrics' => [
+                'active_clinics' => Clinic::where('is_active', true)->count(),
+                'inactive_clinics' => Clinic::where('is_active', false)->count(),
+                'appointments_today' => Appointment::whereDate('appointment_date', now()->toDateString())->count(),
+                'waiting_tokens' => QueueToken::whereDate('queue_date', now()->toDateString())->where('status', QueueToken::STATUS_WAITING)->count(),
+                'serving_tokens' => QueueToken::whereDate('queue_date', now()->toDateString())->where('status', QueueToken::STATUS_CALLED)->count(),
+                'completed_tokens' => QueueToken::whereDate('queue_date', now()->toDateString())->where('status', QueueToken::STATUS_COMPLETED)->count(),
+                'verified_users' => User::where('is_verified', true)->count(),
+                'unverified_users' => User::where('is_verified', false)->count(),
+                'unassigned_helpers' => User::where('role', User::ROLE_HELPER)->whereNull('doctor_id')->count(),
+            ],
+            'ownerCharts' => [
+                'labels' => $trendLabels,
+                'appointments' => $appointmentTrend,
+                'users' => $userTrend,
+                'roles' => [
+                    'labels' => ['Admins', 'Doctors', 'Helpers', 'Patients'],
+                    'values' => [$stats['clinic_admins'], $stats['doctors'], $stats['helpers'], $stats['patients']],
+                ],
             ],
         ]);
     }

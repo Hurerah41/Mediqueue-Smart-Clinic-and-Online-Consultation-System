@@ -44,8 +44,15 @@
                 <div><strong>Date:</strong> {{ $appointment->appointment_date->format('d M Y') }}</div>
                 <div><strong>Type:</strong> {{ ucfirst($appointment->consultation_type) }}</div>
                 <div><strong>Status:</strong> <span id="appointment-status" class="font-semibold text-primary">{{ ucfirst(str_replace('_', ' ', $appointment->status)) }}</span></div>
+                @if ($appointment->payment)
+                    <div><strong>Payment:</strong> <span class="font-semibold {{ $appointment->payment->status === \App\Models\AppointmentPayment::STATUS_PAID ? 'text-accent' : 'text-amber-600' }}">{{ ucfirst($appointment->payment->status) }} - Rs {{ number_format($appointment->payment->amount) }}</span></div>
+                @endif
                 <div><strong>Symptoms:</strong> {{ $appointment->symptoms ?: 'Not provided' }}</div>
             </div>
+
+            @if ($appointment->status === \App\Models\Appointment::STATUS_PENDING_PAYMENT && $appointment->payment)
+                <a href="{{ route('payments.show', $appointment->payment) }}" class="inline-flex mt-8 bg-gradient-premium text-white px-6 py-3 rounded-2xl font-bold shadow-glow">Complete Payment</a>
+            @endif
 
             @if ($appointment->consultation)
                 <a href="{{ route('consultations.show', $appointment->consultation) }}" class="inline-flex mt-8 bg-gradient-premium text-white px-6 py-3 rounded-2xl font-bold shadow-glow">Open Online Consultation</a>

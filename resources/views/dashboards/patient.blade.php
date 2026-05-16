@@ -90,6 +90,12 @@
                                     Image
                                 </a>
                             @endif
+                            @if ($appointment->payment && $appointment->payment->status === \App\Models\AppointmentPayment::STATUS_PENDING)
+                                <a href="{{ route('payments.show', $appointment->payment) }}" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-amber-50 text-amber-700 text-sm font-bold hover:bg-amber-500 hover:text-white transition-all">
+                                    <i class="ph-bold ph-credit-card"></i>
+                                    Complete Payment
+                                </a>
+                            @endif
                         </div>
                     </div>
                 @empty
@@ -244,6 +250,14 @@
                         </a>
                     `
                     : '';
+                const paymentButton = appointment.payment_status === 'pending' && appointment.payment_url
+                    ? `
+                        <a href="${escapeHtml(appointment.payment_url)}" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-amber-50 text-amber-700 text-sm font-bold hover:bg-amber-500 hover:text-white transition-all">
+                            <i class="ph-bold ph-credit-card"></i>
+                            Complete Payment
+                        </a>
+                    `
+                    : '';
 
                 return `
                 <div class="premium-card rounded-[2rem] border border-slate-100 p-5 bg-gradient-to-br from-white to-slate-50">
@@ -295,6 +309,7 @@
                             <i class="ph-bold ph-arrow-right"></i>
                         </a>
                         ${prescriptionButtons}
+                        ${paymentButton}
                     </div>
                 </div>
             `;

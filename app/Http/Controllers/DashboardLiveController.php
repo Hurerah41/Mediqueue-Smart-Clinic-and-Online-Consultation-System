@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Clinic;
 use App\Models\ClinicApplication;
+use App\Models\Doctor;
 use App\Models\Prescription;
 use App\Models\QueueToken;
 use App\Models\User;
@@ -25,6 +26,7 @@ class DashboardLiveController extends Controller
                     'pending_apps' => ClinicApplication::where('status', ClinicApplication::STATUS_PENDING)->count(),
                     'clinic_admins' => User::where('role', User::ROLE_ADMIN)->count(),
                     'doctors' => User::where('role', User::ROLE_DOCTOR)->count(),
+                    'helpers' => User::where('role', User::ROLE_HELPER)->count(),
                     'patients' => User::where('role', User::ROLE_PATIENT)->count(),
                 ],
                 'clinic_applications' => ClinicApplication::with('area')
@@ -55,7 +57,7 @@ class DashboardLiveController extends Controller
                         'doctor_count' => $clinic->users->where('role', User::ROLE_DOCTOR)->count(),
                         'is_active' => $clinic->is_active,
                     ]),
-                'users' => User::with('clinic')
+                'users' => User::with(['clinic', 'assignedDoctor.user'])
                     ->latest()
                     ->get()
                     ->map(fn (User $member) => [
@@ -65,8 +67,20 @@ class DashboardLiveController extends Controller
                         'phone' => $member->phone,
                         'role' => $member->role,
                         'clinic_id' => $member->clinic_id,
+                        'doctor_id' => $member->doctor_id,
+                        'assigned_doctor_name' => $member->assignedDoctor?->user?->name,
                         'clinic_name' => $member->clinic?->name ?? 'No clinic',
+                        'is_verified' => $member->is_verified,
                         'is_owner' => $member->isSuperAdmin(),
+                        'created_at' => $member->created_at?->format('d M Y'),
+                    ]),
+                'doctors' => Doctor::with(['user', 'clinic'])
+                    ->latest()
+                    ->get()
+                    ->map(fn (Doctor $doctor) => [
+                        'id' => $doctor->id,
+                        'name' => $doctor->user->name,
+                        'clinic_id' => $doctor->clinic_id,
                     ]),
             ]);
         }
@@ -94,7 +108,7 @@ class DashboardLiveController extends Controller
         }
 
         $appointments = Appointment::query()
-            ->with(['clinic.area', 'doctor.user', 'doctor.specialization', 'queueToken', 'prescription'])
+            ->with(['clinic.area', 'doctor.user', 'doctor.specialization', 'queueToken', 'payment', 'prescription'])
             ->where('patient_id', $user->id)
             ->latest()
             ->take(10)
@@ -132,6 +146,8 @@ class DashboardLiveController extends Controller
                     'token_status' => $appointment->queueToken?->status,
                     'appointment_status' => $appointment->status,
                     'details_url' => route('appointments.show', $appointment),
+                    'payment_status' => $appointment->payment?->status,
+                    'payment_url' => $appointment->payment ? route('payments.show', $appointment->payment) : null,
                     'prescription_pdf_url' => $appointment->prescription ? route('prescriptions.download', $appointment->prescription) : null,
                     'prescription_image_url' => $appointment->prescription ? route('prescriptions.image', $appointment->prescription) : null,
                 ];

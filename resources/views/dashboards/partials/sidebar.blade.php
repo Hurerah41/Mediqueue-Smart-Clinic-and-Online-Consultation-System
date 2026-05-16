@@ -4,6 +4,7 @@
         \App\Models\User::ROLE_SUPER_ADMIN => 'Platform Owner',
         \App\Models\User::ROLE_ADMIN => 'Clinic Admin',
         \App\Models\User::ROLE_DOCTOR => 'Doctor',
+        \App\Models\User::ROLE_HELPER => 'Doctor Helper',
         default => 'Patient',
     };
 
@@ -23,6 +24,9 @@
         \App\Models\User::ROLE_DOCTOR => [
             ['label' => 'Queue Board', 'icon' => 'ph-queue', 'href' => route('doctor.queue'), 'active' => request()->routeIs('doctor.queue')],
             ['label' => 'Prescription Desk', 'icon' => 'ph-pill', 'href' => route('doctor.prescriptions'), 'active' => request()->routeIs('doctor.prescriptions')],
+        ],
+        \App\Models\User::ROLE_HELPER => [
+            ['label' => 'Helper Desk', 'icon' => 'ph-first-aid-kit', 'href' => route('helper.dashboard'), 'active' => request()->routeIs('helper.dashboard')],
         ],
         default => [
             ['label' => 'Appointments', 'icon' => 'ph-calendar-check', 'href' => route('patient.appointments'), 'active' => request()->routeIs('patient.appointments')],
